@@ -1,0 +1,68 @@
+# This workflow builds a Java project using Gradle.
+
+name: Java CI with Gradle
+
+# Defines when the workflow should run.
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# Defines the jobs in the workflow.
+jobs:
+
+  # Build job
+  build:
+
+    # Run the job on a GitHub-hosted Ubuntu runner.
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+
+    # Checkout the repository code.
+    - uses: actions/checkout@v4
+
+    # Set up JDK 8.
+    - name: Set up JDK 8
+      uses: actions/setup-java@v4
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+
+    # Give execute permission to the Gradle Wrapper.
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    # Build the Java project using Gradle Wrapper.
+    # --no-build-cache avoids using Gradle's build cache.
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build --no-build-cache
+
+
+  # Dependency submission job
+  dependency-submission:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+
+    # Checkout the repository code.
+    - uses: actions/checkout@v4
+
+    # Set up JDK 8.
+    - name: Set up JDK 8
+      uses: actions/setup-java@v4
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+
+    # Generate and submit the project's dependency graph.
+    - name: Generate and submit dependency graph
+      uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582
